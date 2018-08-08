@@ -1,0 +1,20 @@
+{
+  "name": "eth",
+  "version": "1.0.0",
+  "description": "",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "openzeppelin-solidity": "^1.11.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test:local": "truffle test --network local",
+    "migrate:local": "truffle migrate --network local --reset"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

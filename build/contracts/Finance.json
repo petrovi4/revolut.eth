@@ -1,0 +1,97 @@
+{
+  "contractName": "Finance",
+  "abi": [],
+  "bytecode": "0x6080604052348015600f57600080fd5b50603580601d6000396000f3006080604052600080fd00a165627a7a72305820505ec951a0a3271596ca3c0025a73812aede4eb50c2ac8e583397b86bd2a2b880029",
+  "deployedBytecode": "0x6080604052600080fd00a165627a7a72305820505ec951a0a3271596ca3c0025a73812aede4eb50c2ac8e583397b86bd2a2b880029",
+  "sourceMap": "26:22:2:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;26:22:2;;;;;;;",
+  "deployedSourceMap": "26:22:2:-;;;;;",
+  "source": "pragma solidity ^0.4.24;\n\ncontract Finance {\n\n\n}",
+  "sourcePath": "/Users/petrovi4/projects/blockchain/coinforgoods/eth/contracts/Finance.sol",
+  "ast": {
+    "absolutePath": "/Users/petrovi4/projects/blockchain/coinforgoods/eth/contracts/Finance.sol",
+    "exportedSymbols": {
+      "Finance": [
+        367
+      ]
+    },
+    "id": 368,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 366,
+        "literals": [
+          "solidity",
+          "^",
+          "0.4",
+          ".24"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:24:2"
+      },
+      {
+        "baseContracts": [],
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "documentation": null,
+        "fullyImplemented": true,
+        "id": 367,
+        "linearizedBaseContracts": [
+          367
+        ],
+        "name": "Finance",
+        "nodeType": "ContractDefinition",
+        "nodes": [],
+        "scope": 368,
+        "src": "26:22:2"
+      }
+    ],
+    "src": "0:48:2"
+  },
+  "legacyAST": {
+    "absolutePath": "/Users/petrovi4/projects/blockchain/coinforgoods/eth/contracts/Finance.sol",
+    "exportedSymbols": {
+      "Finance": [
+        367
+      ]
+    },
+    "id": 368,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 366,
+        "literals": [
+          "solidity",
+          "^",
+          "0.4",
+          ".24"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:24:2"
+      },
+      {
+        "baseContracts": [],
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "documentation": null,
+        "fullyImplemented": true,
+        "id": 367,
+        "linearizedBaseContracts": [
+          367
+        ],
+        "name": "Finance",
+        "nodeType": "ContractDefinition",
+        "nodes": [],
+        "scope": 368,
+        "src": "26:22:2"
+      }
+    ],
+    "src": "0:48:2"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.4.24+commit.e67f0147.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "2.0.1",
+  "updatedAt": "2018-08-08T17:13:03.079Z"
+}
