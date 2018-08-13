@@ -1,7 +1,7 @@
 var RVLCoin = artifacts.require("./RVLCoin.sol");
+var RVLCrowdsale = artifacts.require("./RVLCrowdsale.sol");
 
 module.exports = function(deployer) {
-	const tokensAmount = 1e10;
-  // deployer.deploy(RVLCoin, tokensAmount);
-  deployer.deploy(RVLCoin);
+	deployer.deploy(RVLCoin);
+	deployer.deploy(RVLCrowdsale);
 };
