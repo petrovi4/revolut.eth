@@ -1,7 +1,7 @@
-var RVLCoin = artifacts.require("./RVLCoin.sol");
-var RVLCrowdsale = artifacts.require("./RVLCrowdsale.sol");
+var RVLToken = artifacts.require("./RVLToken.sol");
+var RVLSale = artifacts.require("./RVLSale.sol");
 
-contract('RVLCrowdsale - Initialize, cap and simple transfer', async (accounts) => {
+contract('RVLSale - Initialize, cap and simple transfer', async (accounts) => {
 
 	const account = accounts[1];
 
@@ -9,7 +9,7 @@ contract('RVLCrowdsale - Initialize, cap and simple transfer', async (accounts) 
 
 
 	it('Check openingTime and closingTime of the contract', async () => {
-		const crowdsale = await RVLCrowdsale.deployed();
+		const crowdsale = await RVLSale.deployed();
 
 		const openingTime = await crowdsale.openingTime.call();
 		const closingTime = await crowdsale.closingTime.call();
@@ -20,8 +20,8 @@ contract('RVLCrowdsale - Initialize, cap and simple transfer', async (accounts) 
 	});
 
 	it('Check initial RVL balance, make buying, and check account after', async () => {
-		const coin = await RVLCoin.deployed();
-		const crowdsale = await RVLCrowdsale.deployed();
+		const coin = await RVLToken.deployed();
+		const crowdsale = await RVLSale.deployed();
 
 		const amount_before = await coin.balanceOf.call(account);
 		console.log('amount_before', amount_before);
