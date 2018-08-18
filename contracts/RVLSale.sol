@@ -5,12 +5,12 @@ import 'openzeppelin-solidity/contracts/ownership/Ownable.sol';
 import 'openzeppelin-solidity/contracts/token/ERC20/ERC20.sol';
 
 import 'openzeppelin-solidity/contracts/crowdsale/Crowdsale.sol';
+import 'openzeppelin-solidity/contracts/crowdsale/emission/MintedCrowdsale.sol';
 
 import './RVLToken.sol';
 
 
-// contract RVLSale {
-contract RVLSale is Ownable, Crowdsale {
+contract RVLSale is Ownable, Crowdsale, MintedCrowdsale {
 
 	/// Chart of stage transition 
 	///
@@ -30,5 +30,4 @@ contract RVLSale is Ownable, Crowdsale {
 
 	constructor (address _wallet) Crowdsale(1, _wallet, new RVLToken()) public {
 	}
-
 }

@@ -1,6 +1,9 @@
 pragma solidity ^0.4.24;
 
-contract Content {
+import 'openzeppelin-solidity/contracts/ownership/Ownable.sol';
+
+
+contract Content is Ownable {
 
 	enum AdminRole { None, ManageFundings, ManageUsers, ManageAdmins, God }
 	struct Admin {
@@ -60,6 +63,8 @@ contract Content {
 
 
 
+
+
 	modifier onlyAdmin(AdminRole role) {
 		require(
 			admins[msg.sender].role == role,
@@ -88,6 +93,13 @@ contract Content {
 			role: AdminRole.God
 		});
 	}
+
+	// function init () public {
+	// 	Funding funding = Funding({
+
+	// 	});
+	// }
+	
 
 
 
@@ -144,10 +156,10 @@ contract Content {
 		if(sumAmount < 100) sumAmount = 100;
 	}
 
-	// function addFunding(string _name, string _description, uint _end, string _geoLocation) public payable onlyUser() {
-	// 	User storage user = users[msg.sender];
-	// 	uint minimalAmount = getMinimalEventPayable(user.countryCode);
-	// 	require(msg.value > minimalAmount, "Minitmal amount for funding required");
-	// }
+	function addFunding(string _name, string _description, uint _end, string _geoLocation) public payable onlyUser() {
+		User storage user = users[msg.sender];
+		uint minimalAmount = getMinimalEventPayable(user.countryCode);
+		require(msg.value > minimalAmount, "Minitmal amount for funding required");
+	}
 
 }
