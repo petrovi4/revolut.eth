@@ -4,17 +4,22 @@ import 'openzeppelin-solidity/contracts/ownership/Ownable.sol';
 
 import 'openzeppelin-solidity/contracts/token/ERC20/ERC20.sol';
 
-import 'openzeppelin-solidity/contracts/crowdsale/distribution/PostDeliveryCrowdsale.sol';
+import 'openzeppelin-solidity/contracts/crowdsale/validation/TimedCrowdsale.sol';
 
 import './RVLCoin.sol';
 
 
-contract RVLCrowdsale is TimedCrowdsale(now - 1 days, now + 1 days) {
+contract RVLCrowdsale is TimedCrowdsale {
 
-	constructor (address _wallet) public {
-		token = new RVLCoin();
+	constructor (uint256 _openingTime, uint256 _closingTime, address _wallet) 
+		TimedCrowdsale(_openingTime, _closingTime) 
+		public 
+	{
+		require(_wallet != address(0));
+
+		rate = 1;
 		wallet = _wallet;
-		rate = 1e5;
+		token = new RVLCoin();
 	}
 
 }
