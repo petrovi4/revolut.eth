@@ -2,7 +2,7 @@ var RVLToken = artifacts.require("./RVLToken.sol");
 
 contract('RVLToken - Initialize, cap and simple transfer', async (accounts) => {
 
-	const cap = 1e10
+	const cap = web3.toWei(200000);
 	const toMint = 1000;
 	const account = accounts[0];
 

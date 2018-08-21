@@ -3,6 +3,7 @@ var RVLSale = artifacts.require("./RVLSale.sol");
 
 var Revolut = artifacts.require("./Revolut.sol");
 
+
 // const duration = {
 // 	seconds: function (val) { return val},
 // 	minutes: function (val) { return val * this.seconds(60) },

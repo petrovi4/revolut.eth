@@ -35,22 +35,6 @@ contract('RVLSale - Initialize, cap and simple transfer', async (accounts) => {
 		assert.equal(totalSupply.toNumber(), tokensToBuy, 'Wrong totalSupply amount');
 	});
 
-
-	// it('Check initial RVL balance, make buying, and check account after', async () => {
-	// 	const sale = await RVLSale.deployed();
-
-		// const amount_before = await coin.balanceOf.call(account);
-		// console.log('amount_before', amount_before);
-		// assert.equal(amount_before.toNumber(), 0, 'Wrong initial balance on account before buying');
-
-		// await sale.sendTransaction({from: account, value: 10000});
-		// console.log('Transaction sended');
-
-		// const amount_after = await coin.balanceOf.call(account);
-		// console.log('amount_after', amount_after);
-		// assert.equal(amount_before.toNumber(), 0, 'Wrong initial balance on account before buying');
-	// });
-
 });
 
 

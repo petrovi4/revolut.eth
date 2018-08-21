@@ -3,7 +3,7 @@ pragma solidity ^0.4.24;
 import 'openzeppelin-solidity/contracts/ownership/Ownable.sol';
 
 
-contract Content is Ownable {
+contract Revolut is Ownable {
 
 	enum AdminRole { None, ManageFundings, ManageUsers, ManageAdmins, God }
 	struct Admin {
