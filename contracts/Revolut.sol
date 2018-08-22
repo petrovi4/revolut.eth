@@ -1,16 +1,18 @@
 pragma solidity ^0.4.24;
 
 import 'openzeppelin-solidity/contracts/ownership/Ownable.sol';
+import "openzeppelin-solidity/contracts/token/ERC20/SafeERC20.sol";
 
 import './RVLToken.sol';
-import './RVLSale.sol';
 
 
 contract Revolut is Ownable() {
+	using SafeERC20 for RVLToken;
 
-	RVLSale sale;
-	function setRVLSale (address _saleAddress) public onlyOwner() {
-		sale = RVLSale(_saleAddress);
+	RVLToken token;
+
+	constructor (address _tokenAddress) public {
+		token = RVLToken(_tokenAddress);
 	}
 
 
@@ -146,8 +148,7 @@ contract Revolut is Ownable() {
 		int24 _geoLon
 	) public onlyUser() {
 		User storage user = users[msg.sender];
-		uint minimalAmount = getMinimalFundingPayable(user.countryCode);
-		require(msg.value > minimalAmount, "Minitmal amount for funding required");
+		uint addFundingPrice = getMinimalFundingPayable(user.countryCode);
 
 		bytes32 id = keccak256(abi.encodePacked(_name));
 		Funding storage fnd = fundings[id];
@@ -184,9 +185,10 @@ contract Revolut is Ownable() {
 			});
 			fundingIds.push(id);
 		}
+
+		// token.safeTransferFrom(msg.sender, address(this), addFundingPrice);
+		token.transferFrom(msg.sender, address(this), addFundingPrice);
 	}
-
-
 
 
 
@@ -227,35 +229,7 @@ contract Revolut is Ownable() {
 
 	event PostCreated(address author, address funding, uint admount);
 	event PostReplenished(address post, address author, address funding, uint amount);
-
-
-
-	constructor() public {
-		// admins[msg.sender] = Admin({
-		// 	role: AdminRole.God
-		// });
-	}
-
-	// function init () public {
-	// 	Funding funding = Funding({
-
-	// 	});
-	// }
 	
-
-
-
-	// function assignAdminRole(address newAdmin, AdminRole _role) public onlyAdmin(AdminRole.ManageAdmins) {
-	// 	Admin storage admin = admins[newAdmin];
-
-	// 	require(
-	// 		admin.role != _role,
-	// 		"Already signed up"
-	// 	);
-
-	// 	admin.role = _role;
-	// }
-
 
 
 

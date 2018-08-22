@@ -18,9 +18,15 @@ module.exports = function(deployer, network, accounts) {
 	// const _openingTime = web3.eth.getBlock('latest').timestamp + duration.minutes(5)
 	// const _closingTime = _openingTime + duration.minutes(10)
 
-	deployer.deploy([
-		[RVLToken],
-		[RVLSale, accounts[5]],
-		[Revolut],
-	]);
+	// deployer.deploy([
+	// 	[RVLToken],
+	// 	[RVLSale, accounts[5]],
+	// 	[Revolut, RVLToken.address],
+	// ]);
+	deployer.deploy(RVLToken).then(() => {
+		return deployer.deploy([
+			[RVLSale, accounts[5]],
+			[Revolut, RVLToken.address]
+		]);
+	})
 };
