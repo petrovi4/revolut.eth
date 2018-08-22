@@ -21,7 +21,8 @@ contract('Revolut - Initialize, user signUp/login/delete, country management, wo
 	let sale;
 	let revolut;
 
-	let token_address, token;
+	let token_address;
+	let token;
 	let balance;
 
 	let account_user = accounts[1];
@@ -45,9 +46,9 @@ contract('Revolut - Initialize, user signUp/login/delete, country management, wo
 
 	it('Init - buy tokens', async () => {
 		sale = await RVLSale.deployed();
-
-		token_address = await sale.token.call()
-		token = await RVLToken.at(token_address);
+		token_address = await sale.token.call();
+		token = RVLToken.at(token_address);
+		revolut = await Revolut.deployed();
 
 		await sale.sendTransaction({from: account_user, value: web3.toWei(etherToSend, 'ether')});
 
@@ -57,8 +58,6 @@ contract('Revolut - Initialize, user signUp/login/delete, country management, wo
 
 
 	it('Add country', async () => {
-		revolut = await Revolut.deployed();
-
 		let countries = await revolut.getAllCountries.call();
 		assert.equal(countries.length, 0, 'New contract havn\'t countries');
 
@@ -99,7 +98,6 @@ contract('Revolut - Initialize, user signUp/login/delete, country management, wo
 
 	it('Calc funding price', async () => {
 		funding_creation_price = await revolut.getMinimalFundingPayable.call(web3.fromAscii(funding_countryCode));
-		console.log('funding_creation_price.toNumber()', funding_creation_price.toNumber());
 		assert.isAbove(funding_creation_price.toNumber(), 0, 'funding_creation_price must be above 0 (zero)');
 	});
 
@@ -109,6 +107,9 @@ contract('Revolut - Initialize, user signUp/login/delete, country management, wo
 
 		const allowed = await token.allowance.call(account_user, revolut.address);
 		assert.equal(allowed.toNumber(), funding_creation_price, 'Allowance not stored in token contract');
+
+		const balance = await token.balanceOf.call(account_user);
+		assert.isAbove(balance.toNumber(), 0, 'Account balance must be above 0 (zero)');
 	});
 
 
@@ -116,11 +117,10 @@ contract('Revolut - Initialize, user signUp/login/delete, country management, wo
 		let fundingIds = await revolut.getAllFundingIds.call();
 		assert.equal(fundingIds.length, 0, 'New contract can\'t have fundings');
 
-		const balance_before_adding_funds = await token.balanceOf.call(account_user);
-		console.log('balance_before_adding_funds.toNumber()', balance_before_adding_funds.toNumber());
-		assert.isAbove(balance_before_adding_funds.toNumber(), 0, 'Account balance must be above 0 (zero)');
+		const balance_before_adding_funding = await token.balanceOf.call(account_user);
+		assert.isAbove(balance_before_adding_funding.toNumber(), 0, 'Account balance must be above 0 (zero)');
 
-		await revolut.addFunding(
+		const tran = await revolut.addFunding(
 			web3.fromAscii(funding_name), 
 			web3.fromAscii(funding_description), 
 			web3.fromAscii(funding_imageIpfsId), 
@@ -161,11 +161,10 @@ contract('Revolut - Initialize, user signUp/login/delete, country management, wo
 		assert.equal(funding.geoLat, funding_geoLat, 'Wrong funding.geoLat');
 		assert.equal(funding.geoLon, funding_geoLon, 'Wrong funding.geoLon');
 
-		const balance_after_adding_funds = await token.balanceOf.call(account_user);
-		console.log('balance_after_adding_funds.toNumber()', balance_after_adding_funds.toNumber());
-		assert.isBelow(balance_after_adding_funds.toNumber(), balance_before_adding_funds.toNumber(), 'Account balance after adding funding must be below account balance before adding funding');
+		const balance_after_adding_funding = await token.balanceOf.call(account_user);
+		assert.isBelow(balance_after_adding_funding.toNumber(), balance_before_adding_funding.toNumber(), 'Account balance after adding funding must be below account balance before adding funding');
+		assert.equal(balance_after_adding_funding.toNumber() + parseInt(funding_creation_price), balance_before_adding_funding.toNumber(), 'Account balance after adding funding must be below account balance before adding funding by funding creation price');
 	});
-
 
 
 });

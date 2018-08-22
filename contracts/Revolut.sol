@@ -9,7 +9,7 @@ import './RVLToken.sol';
 contract Revolut is Ownable() {
 	using SafeERC20 for RVLToken;
 
-	RVLToken token;
+	RVLToken public token;
 
 	constructor (address _tokenAddress) public {
 		token = RVLToken(_tokenAddress);
@@ -137,6 +137,9 @@ contract Revolut is Ownable() {
 		if(sumAmount < 100) sumAmount = 100; // TODO: Define minimal amount
 	}
 
+	// event LogAddress(address adrs);
+	// event LogUInt(uint256 unt);
+
 	function addFunding(
 		bytes32 _name,
 		bytes _description,
@@ -148,7 +151,7 @@ contract Revolut is Ownable() {
 		int24 _geoLon
 	) public onlyUser() {
 		User storage user = users[msg.sender];
-		uint addFundingPrice = getMinimalFundingPayable(user.countryCode);
+		uint priceForFunding = getMinimalFundingPayable(user.countryCode);
 
 		bytes32 id = keccak256(abi.encodePacked(_name));
 		Funding storage fnd = fundings[id];
@@ -186,8 +189,15 @@ contract Revolut is Ownable() {
 			fundingIds.push(id);
 		}
 
-		// token.safeTransferFrom(msg.sender, address(this), addFundingPrice);
-		token.transferFrom(msg.sender, address(this), addFundingPrice);
+		// uint256 balance = token.balanceOf(msg.sender);
+		// uint256 allowed = token.allowance(msg.sender, address(this));
+
+		// emit LogAddress(token);
+		// emit LogAddress(msg.sender);
+		// emit LogUInt(balance);
+		// emit LogUInt(allowed);
+		
+		require(token.transferFrom(msg.sender, address(this), priceForFunding));
 	}
 
 
