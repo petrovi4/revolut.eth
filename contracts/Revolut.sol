@@ -105,12 +105,17 @@ contract Revolut is Ownable() {
 	// ------------------------ FUNDINGS -------------------------------
 	// -----------------------------------------------------------------
 
+	enum FundingScale { Unknown, City, Country, Global }
+	enum FundingPrivacy { Unknown, Private, Limited, Public }
+	enum FundingKind { Unknown, Event, Nonprofit, Personal }
 	enum FundingState { Unknown, Blocked, Deleted, InReview, Active, Finished }
 	struct Funding {
 		bytes32 id;
+		address owner;
 		bytes32 name;
-		bytes description;
-		bytes32 imageIpfsId;
+		FundingScale scale;
+		FundingPrivacy privacy;
+		FundingKind kind;
 		FundingState state;
 		uint startDate;
 		uint endDate;
@@ -119,7 +124,14 @@ contract Revolut is Ownable() {
 		int24 geoLat;
 		int24 geoLon;
 	}
+	struct FundingInfo {
+		bytes32 id;
+		bytes description;
+		bytes32 aboutUrl;
+		bytes32 imageIpfsId;
+	}
 	mapping(bytes32 => Funding) public fundings;
+	mapping(bytes32 => FundingInfo) public fundingInfos;
 
 	bytes32[] public fundingIds;
 	function getAllFundingIds () public view returns(bytes32[]) {
@@ -140,44 +152,54 @@ contract Revolut is Ownable() {
 	// event LogAddress(address adrs);
 	// event LogUInt(uint256 unt);
 
-	function addFunding(
+	function addOrEditFunding(
 		bytes32 _name,
-		bytes _description,
-		bytes32 _imageIpfsId,
+		FundingScale _scale,
+		FundingPrivacy _privacy,
+		FundingKind _kind,
 		uint _startDate,
 		uint _endDate,
+		address _beneficiary,
 		bytes2 _countryCode,
 		int24 _geoLat,
 		int24 _geoLon
 	) public onlyUser() {
-		User storage user = users[msg.sender];
-		uint priceForFunding = getMinimalFundingPayable(user.countryCode);
+
+		require (_beneficiary != address(0), 'Beneficiary must be address');
 
 		bytes32 id = keccak256(abi.encodePacked(_name));
 		Funding storage fnd = fundings[id];
-
-		require (fnd.state != FundingState.Active, 'Funding with same name already exists');
-		require (fnd.state != FundingState.InReview, 'Funding with same name already in review');
-		require (fnd.state != FundingState.Finished, 'Funding with same name already finished');
+		
 		require (fnd.state != FundingState.Blocked, 'Funding with same name already blocked');
+		require (fnd.state != FundingState.Finished, 'Funding with same name already finished');
 
-		if(fnd.state == FundingState.Deleted) {
-			fnd.name = _name;
-			fnd.description = _description;
-			fnd.imageIpfsId = _imageIpfsId;
+		if(
+			fnd.state == FundingState.Deleted ||
+			fnd.state == FundingState.InReview ||
+			fnd.state == FundingState.Active
+		) {
+
+			require (fnd.owner == msg.sender || msg.sender == owner, 'Only funding owner and Revolt owner can change funding');
+			
+			fnd.scale = _scale;
+			fnd.privacy = _privacy;
+			fnd.kind = _kind;
 			fnd.startDate = _startDate;
 			fnd.endDate = _endDate;
 			fnd.countryCode = _countryCode;
 			fnd.geoLat = _geoLat;
 			fnd.geoLon = _geoLon;
+
 			fnd.state = FundingState.InReview;
 		}
 		else {
 			fundings[id] = Funding({
 				id: id,
+				owner: msg.sender,
 				name: _name,
-				description: _description,
-				imageIpfsId: _imageIpfsId,
+				scale: _scale,
+				privacy: _privacy,
+				kind: _kind,
 				state: FundingState.InReview,
 				startDate: _startDate,
 				endDate: _endDate,
@@ -186,19 +208,39 @@ contract Revolut is Ownable() {
 				geoLat: _geoLat,
 				geoLon: _geoLon
 			});
+			fundingInfos[id] = FundingInfo({
+				id: id,
+				description: '',
+				aboutUrl: '',
+				imageIpfsId: ''
+			});
 			fundingIds.push(id);
+
+			User storage user = users[msg.sender];
+			uint priceForFunding = getMinimalFundingPayable(user.countryCode);
+			require(token.transferFrom(msg.sender, address(this), priceForFunding));
 		}
-
-		// uint256 balance = token.balanceOf(msg.sender);
-		// uint256 allowed = token.allowance(msg.sender, address(this));
-
-		// emit LogAddress(token);
-		// emit LogAddress(msg.sender);
-		// emit LogUInt(balance);
-		// emit LogUInt(allowed);
-		
-		require(token.transferFrom(msg.sender, address(this), priceForFunding));
 	}
+
+	function addOrEditFundingInfo(
+		bytes32 id,
+		bytes _description,
+		bytes32 _aboutUrl,
+		bytes32 _imageIpfsId
+	) public onlyUser() {
+		Funding storage fnd = fundings[id];
+
+		require (fnd.owner == msg.sender || msg.sender == owner, 'Only funding owner and Revolt owner can change funding');
+		
+		FundingInfo storage fndInfo = fundingInfos[id];
+	
+		fndInfo.description = _description;
+		fndInfo.aboutUrl = _aboutUrl;
+		fndInfo.imageIpfsId = _imageIpfsId;
+
+		fnd.state = FundingState.InReview;
+	}
+
 
 
 

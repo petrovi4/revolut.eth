@@ -3,7 +3,7 @@ var RVLSale = artifacts.require('./RVLSale.sol');
 var Revolut = artifacts.require('./Revolut.sol');
 
 web3.toAsciiOriginal = web3.toAscii;
-web3.toAscii = function (input) { return web3.toAsciiOriginal(input).replace(/\u0000/g, '') }
+web3.toAscii = function (input) { return web3.toAsciiOriginal(input).replace(/\u0000/g, ''); }
 
 
 const duration = {
@@ -26,6 +26,7 @@ contract('Revolut - Initialize, user signUp/login/delete, country management, wo
 	let balance;
 
 	let account_user = accounts[1];
+	let beneficiary_user = accounts[2];
 	const user_name = 'Test name';
 	const user_country = 'us';
 	const user_avatarIpfsId = 'no_avatar';
@@ -33,13 +34,15 @@ contract('Revolut - Initialize, user signUp/login/delete, country management, wo
 	let funding_creation_price;
 
 	const funding_name = 'Test funding';
-	const funding_description = 'Funding for test';
-	const funding_imageIpfsId = 'no_image';
 	const funding_startDate = web3.eth.getBlock('latest').timestamp - duration.minutes(5);
 	const funding_endDate = funding_startDate + duration.minutes(10);
 	const funding_countryCode = user_country;
 	const funding_geoLat = 1;
 	const funding_geoLon = 2;
+
+	const fundingInfo_description = 'Funding for test';
+	const fundingInfo_aboutUrl = 'http://funding.com/about';
+	const fundingInfo_imageIpfsId = 'no_image';
 
 	const etherToSend = 1;
 	const tokensToBuy = web3.toWei(etherToSend);
@@ -120,12 +123,14 @@ contract('Revolut - Initialize, user signUp/login/delete, country management, wo
 		const balance_before_adding_funding = await token.balanceOf.call(account_user);
 		assert.isAbove(balance_before_adding_funding.toNumber(), 0, 'Account balance must be above 0 (zero)');
 
-		const tran = await revolut.addFunding(
+		await revolut.addOrEditFunding(
 			web3.fromAscii(funding_name), 
-			web3.fromAscii(funding_description), 
-			web3.fromAscii(funding_imageIpfsId), 
+			1, 
+			2, 
+			3,
 			funding_startDate,
 			funding_endDate,
+			beneficiary_user,
 			web3.fromAscii(funding_countryCode),
 			funding_geoLat,
 			funding_geoLon,
@@ -135,24 +140,45 @@ contract('Revolut - Initialize, user signUp/login/delete, country management, wo
 		fundingIds = await revolut.getAllFundingIds.call();
 		assert.equal(fundingIds.length, 1, 'Funding not registered');
 
+		await revolut.addOrEditFundingInfo(
+			fundingIds[0],
+			web3.fromAscii(fundingInfo_description), 
+			web3.fromAscii(fundingInfo_aboutUrl), 
+			web3.fromAscii(fundingInfo_imageIpfsId), 
+			{from: account_user}
+		);
+
+
 		const funding_arr = await revolut.fundings.call(fundingIds[0]);
 		const funding = {
 			id: web3.toAscii(funding_arr[0]),
-			name: web3.toAscii(funding_arr[1]),
-			description: web3.toAscii(funding_arr[2]),
-			imageIpfsId: web3.toAscii(funding_arr[3]),
-			state: funding_arr[4].toNumber(),
-			startDate: funding_arr[5].toNumber(),
-			endDate: funding_arr[6].toNumber(),
-			beneficiary: funding_arr[7],
-			countryCode: web3.toAscii(funding_arr[8]),
-			geoLat: funding_arr[9].toNumber(),
-			geoLon: funding_arr[10].toNumber(),
+			owner: funding_arr[1],
+			name: web3.toAscii(funding_arr[2]),
+			scale: funding_arr[3].toNumber(),
+			privacy: funding_arr[4].toNumber(),
+			kind: funding_arr[5].toNumber(),
+			state: funding_arr[6].toNumber(),
+			startDate: funding_arr[7].toNumber(),
+			endDate: funding_arr[8].toNumber(),
+			beneficiary: funding_arr[9],
+			countryCode: web3.toAscii(funding_arr[10]),
+			geoLat: funding_arr[11].toNumber(),
+			geoLon: funding_arr[12].toNumber(),
 		}
 
+		const fundingInfo_arr = await revolut.fundingInfos.call(fundingIds[0]);
+		const fundingInfo = {
+			id: web3.toAscii(fundingInfo_arr[0]),
+			description: web3.toAscii(fundingInfo_arr[1]),
+			aboutUrl: web3.toAscii(fundingInfo_arr[2]),
+			imageIpfsId: web3.toAscii(fundingInfo_arr[3]),
+		}
+
+		assert.equal(funding.owner, account_user, 'Wrong funding.owner');
 		assert.equal(funding.name, funding_name, 'Wrong funding.name');
-		assert.equal(funding.description, funding_description, 'Wrong funding.description');
-		assert.equal(funding.imageIpfsId, funding_imageIpfsId, 'Wrong funding.imageIpfsId');
+		assert.equal(funding.scale, 1, 'Wrong funding.scale');
+		assert.equal(funding.privacy, 2, 'Wrong funding.privacy');
+		assert.equal(funding.kind, 3, 'Wrong funding.kind');
 		assert.equal(funding.state, 3, 'Wrong funding.state');
 		assert.equal(funding.startDate, funding_startDate, 'Wrong funding.startDate');
 		assert.equal(funding.endDate, funding_endDate, 'Wrong funding.endDate');
@@ -160,6 +186,10 @@ contract('Revolut - Initialize, user signUp/login/delete, country management, wo
 		assert.equal(funding.countryCode, funding_countryCode, 'Wrong funding.countryCode');
 		assert.equal(funding.geoLat, funding_geoLat, 'Wrong funding.geoLat');
 		assert.equal(funding.geoLon, funding_geoLon, 'Wrong funding.geoLon');
+
+		assert.equal(fundingInfo.description, fundingInfo_description, 'Wrong fundingInfo.description');
+		assert.equal(fundingInfo.aboutUrl, fundingInfo_aboutUrl, 'Wrong fundingInfo.aboutUrl');
+		assert.equal(fundingInfo.imageIpfsId, fundingInfo_imageIpfsId, 'Wrong fundingInfo.imageIpfsId');
 
 		const balance_after_adding_funding = await token.balanceOf.call(account_user);
 		assert.isBelow(balance_after_adding_funding.toNumber(), balance_before_adding_funding.toNumber(), 'Account balance after adding funding must be below account balance before adding funding');
